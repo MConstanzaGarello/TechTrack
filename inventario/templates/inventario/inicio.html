@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block titulo %}Inicio{% endblock %}
+{% block contenido %}
+<div class="tt-encabezado">
+  <div>
+    <h1>Panel de control</h1>
+    <p>Hola, {{ user.first_name|default:user.username }}. Estado de los recursos al {{ hoy|date:"d/m/Y H:i" }}.</p>
+  </div>
+  {% if es_analista %}
+    <a class="btn btn-primary btn-icono" href="{% url 'inventario:nuevo_movimiento' %}">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+      Registrar movimiento
+    </a>
+  {% endif %}
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-xl-3">
+    <div class="tt-card tt-kpi">
+      <div class="tt-kpi-icono"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg></div>
+      <div><div class="tt-kpi-titulo">Modelos en catálogo</div><div class="tt-kpi-valor">{{ total_modelos }}</div><div class="tt-kpi-detalle">con nombre estándar</div></div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="tt-card tt-kpi">
+      <div class="tt-kpi-icono" style="background:var(--tt-verde-suave);color:var(--tt-verde)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></div>
+      <div><div class="tt-kpi-titulo">Unidades en uso</div><div class="tt-kpi-valor">{{ en_uso }}</div><div class="tt-kpi-detalle">en sectores de la planta</div></div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="tt-card tt-kpi">
+      <div class="tt-kpi-icono"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V9l9-6 9 6v12"/><path d="M7 21v-8h10v8M7 17h10"/></svg></div>
+      <div><div class="tt-kpi-titulo">Unidades en warehouse</div><div class="tt-kpi-valor">{{ en_warehouse }}</div><div class="tt-kpi-detalle">disponibles para entregar</div></div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="tt-card tt-kpi">
+      <div class="tt-kpi-icono" style="background:var(--tt-naranja-suave);color:var(--tt-naranja)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/></svg></div>
+      <div><div class="tt-kpi-titulo">Sin stock en warehouse</div><div class="tt-kpi-valor">{{ sin_stock }}</div><div class="tt-kpi-detalle">modelos sin unidades disponibles</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-xl-8">
+    <div class="tt-card h-100">
+      <div class="tt-card-cab">
+        <div><h2>Últimas operaciones</h2><p>Quién registró cada cambio, cuándo, desde dónde y hacia dónde.</p></div>
+        <a class="small fw-semibold" href="{% url 'inventario:historial' %}">Ver historial completo →</a>
+      </div>
+      <div class="tt-card-cuerpo pt-3 px-0 pb-0">
+        {% if ultimas %}
+        <div class="table-responsive">
+          <table class="table tt-tabla">
+            <thead><tr><th class="ps-4">Modelo</th><th>Movimiento</th><th class="num">Cant.</th><th class="pe-4">Registró</th></tr></thead>
+            <tbody>
+              {% for op in ultimas %}
+              <tr>
+                <td class="ps-4" style="min-width:15rem"><a class="text-reset fw-medium" href="{% url 'inventario:historial_modelo' op.modelo_id %}">{{ op.modelo.nombre }}</a><div class="tt-sub">{{ op.modelo.tipo }}</div></td>
+                <td class="text-nowrap">
+                  {% if op.origen %}{{ op.origen }}<span class="tt-flecha">→</span>{{ op.destino }}
+                  {% else %}<span class="tt-pill tt-pill-gris">Carga inicial</span> {{ op.destino }}{% endif %}
+                </td>
+                <td class="num">{{ op.cantidad }}</td>
+                <td class="pe-4 text-nowrap">{{ op.analista.get_full_name|default:op.analista.username }}<div class="tt-sub">{{ op.fecha|date:"d/m/Y H:i" }}</div></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+          <p class="px-4 pb-3 text-secondary">Todavía no hay operaciones registradas.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-4 d-flex flex-column gap-3">
+    <div class="tt-card">
+      <div class="tt-card-cab"><h2>Accesos rápidos</h2></div>
+      <div class="tt-card-cuerpo d-grid gap-2">
+        {% if es_analista %}
+        <a class="tt-acceso" href="{% url 'inventario:nuevo_movimiento' %}">
+          <span class="tt-acceso-icono"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h14l-4-4M20 16H6l4 4"/></svg></span>
+          <div><strong>Registrar movimiento</strong><span>Trasladar unidades entre ubicaciones</span></div>
+        </a>
+        {% endif %}
+        <a class="tt-acceso" href="{% url 'inventario:disponibilidad' %}">
+          <span class="tt-acceso-icono"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg></span>
+          <div><strong>Disponibilidad</strong><span>Cantidades por modelo y ubicación</span></div>
+        </a>
+        <a class="tt-acceso" href="{% url 'inventario:historial' %}">
+          <span class="tt-acceso-icono"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+          <div><strong>Historial</strong><span>Todas las operaciones, sin edición</span></div>
+        </a>
+      </div>
+    </div>
+
+    {% if sin_stock_lista %}
+    <div class="tt-card">
+      <div class="tt-card-cab"><div><h2>Sin stock en warehouse</h2><p>No hay unidades para entregar.</p></div></div>
+      <div class="tt-card-cuerpo">
+        <ul class="list-unstyled mb-0 small d-grid gap-2">
+          {% for m in sin_stock_lista %}
+            <li class="d-flex justify-content-between gap-2"><span>{{ m.nombre }}</span><span class="tt-pill" style="background:var(--tt-naranja-suave);color:var(--tt-naranja)">0</span></li>
+          {% endfor %}
+        </ul>
+        {% if sin_stock > 6 %}<a class="small fw-semibold d-inline-block mt-2" href="{% url 'inventario:disponibilidad' %}">Ver los {{ sin_stock }} modelos →</a>{% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

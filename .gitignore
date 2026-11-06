@@ -1,0 +1,37 @@
+# Entornos virtuales
+venv/
+.venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Base de datos local y archivos generados
+db.sqlite3
+db.sqlite3-journal
+staticfiles/
+media/
+
+# Variables de entorno y secretos
+.env
+.env.*
+!.env.example
+*.pem
+
+# Datos reales de la organización: nunca se suben al repositorio
+*.xlsx
+*.xls
+*.csv
+
+# Editores y sistema operativo
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Pruebas y cobertura
+.coverage
+htmlcov/

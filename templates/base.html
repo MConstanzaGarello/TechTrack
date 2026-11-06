@@ -1,0 +1,89 @@
+{% load static %}<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}TechTrack{% endblock %} · TechTrack</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/techtrack.css' %}">
+</head>
+<body class="tt-body">
+{% if user.is_authenticated %}
+{% with actual=request.resolver_match.url_name %}
+<div class="tt-shell">
+  <aside class="tt-sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="menu" aria-label="Menú principal">
+    <div class="offcanvas-body">
+      <div class="tt-marca d-flex justify-content-between align-items-start">
+        <div>
+          <div class="tt-marca-nombre">TechTrack</div>
+          <div class="tt-marca-sub">Gestión de Recursos IT</div>
+        </div>
+        <button type="button" class="btn-close btn-close-white d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#menu" aria-label="Cerrar menú"></button>
+      </div>
+      <nav class="tt-nav">
+        <a href="{% url 'inicio' %}" class="{% if actual == 'inicio' %}activo{% endif %}">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></svg>
+          Inicio
+        </a>
+        <a href="{% url 'inventario:disponibilidad' %}" class="{% if actual == 'disponibilidad' %}activo{% endif %}">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg>
+          Disponibilidad
+        </a>
+        {% if es_analista %}
+        <a href="{% url 'inventario:nuevo_movimiento' %}" class="{% if actual == 'nuevo_movimiento' %}activo{% endif %}">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h14l-4-4M20 16H6l4 4"/></svg>
+          Registrar movimiento
+        </a>
+        {% endif %}
+        <a href="{% url 'inventario:historial' %}" class="{% if actual == 'historial' or actual == 'historial_modelo' %}activo{% endif %}">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          Historial
+        </a>
+      </nav>
+      <div class="tt-usuario">
+        <div class="tt-avatar" aria-hidden="true">{{ user.first_name|default:user.username|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}</div>
+        <div class="min-w-0">
+          <div class="tt-usuario-nombre text-truncate">{{ user.get_full_name|default:user.username }}</div>
+          <div class="tt-usuario-rol">{% if es_analista %}Analista de Soporte IT{% elif es_bp %}BP del área de IT{% else %}Usuario{% endif %}</div>
+        </div>
+        <form method="post" action="{% url 'logout' %}" class="m-0 ms-auto">
+          {% csrf_token %}
+          <button type="submit" class="tt-salir" aria-label="Cerrar sesión" title="Cerrar sesión">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/></svg>
+          </button>
+        </form>
+      </div>
+    </div>
+  </aside>
+
+  <div class="tt-main">
+    <header class="tt-topbar d-lg-none">
+      <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#menu" aria-controls="menu" aria-label="Abrir menú">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <span class="tt-marca-nombre">TechTrack</span>
+    </header>
+    <main class="tt-contenido">
+      {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+      {% endfor %}
+      {% block contenido %}{% endblock %}
+    </main>
+    <footer class="tt-pie">TechTrack · Sistema de Gestión y Trazabilidad de Recursos Tecnológicos</footer>
+  </div>
+</div>
+{% endwith %}
+{% else %}
+  {% block publico %}
+  <main class="tt-contenido">{% block contenido_publico %}{% endblock %}</main>
+  {% endblock %}
+{% endif %}
+<script src="{% static 'vendor/bootstrap/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>

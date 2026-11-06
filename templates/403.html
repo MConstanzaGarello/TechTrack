@@ -1,0 +1,4 @@
+{% extends "base.html" %}
+{% block titulo %}Acceso denegado{% endblock %}
+{% block contenido %}{% include "_error.html" with codigo="403" titulo="Acceso denegado" mensaje="Tu rol no tiene permiso para realizar esta acción." %}{% endblock %}
+{% block contenido_publico %}{% include "_error.html" with codigo="403" titulo="Acceso denegado" mensaje="Tu rol no tiene permiso para realizar esta acción." %}{% endblock %}

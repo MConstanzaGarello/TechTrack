@@ -1,0 +1,4 @@
+{% extends "base.html" %}
+{% block titulo %}Página no encontrada{% endblock %}
+{% block contenido %}{% include "_error.html" with codigo="404" titulo="Página no encontrada" mensaje="La dirección que buscás no existe." %}{% endblock %}
+{% block contenido_publico %}{% include "_error.html" with codigo="404" titulo="Página no encontrada" mensaje="La dirección que buscás no existe." %}{% endblock %}

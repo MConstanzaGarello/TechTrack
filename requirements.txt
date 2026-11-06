@@ -1,0 +1,7 @@
+# Dependencias de TechTrack (Python 3.11)
+Django==5.2.18
+gunicorn==26.2.0          # servidor WSGI para Render (no se usa en Windows)
+whitenoise==6.12.0        # archivos estáticos en producción
+dj-database-url==3.1.2    # lee DATABASE_URL (PostgreSQL en Render)
+psycopg[binary]==3.3.6    # conector de PostgreSQL
+tzdata==2026.5            # zonas horarias (necesario en Windows)

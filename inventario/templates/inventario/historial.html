@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block titulo %}Historial{% endblock %}
+{% block contenido %}
+<div class="tt-encabezado">
+  <div>
+    <h1>Historial de operaciones</h1>
+    <p>{% if modelo %}{{ modelo.nombre }} · {% endif %}Solo lectura. Un error se corrige registrando un movimiento inverso, que también queda acá.</p>
+  </div>
+</div>
+
+<div class="tt-card mb-3">
+  <form method="get" class="tt-card-cuerpo row g-2 align-items-end" onsubmit="if(this.m.value){window.location=this.m.value;} return false;">
+    <div class="col-md-8">
+      <label class="form-label" for="m">Modelo</label>
+      <select id="m" name="m" class="form-select">
+        <option value="{% url 'inventario:historial' %}">Todos los modelos</option>
+        {% for m in modelos %}
+          {% url 'inventario:historial_modelo' m.pk as url_m %}
+          <option value="{{ url_m }}"{% if modelo and modelo.pk == m.pk %} selected{% endif %}>{{ m.nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4"><button class="btn btn-primary w-100" type="submit">Ver historial</button></div>
+  </form>
+</div>
+
+<div class="tt-card">
+  {% if pagina.object_list %}
+  <div class="tt-tabla-scroll">
+    <table class="table tt-tabla">
+      <thead>
+        <tr>
+          <th class="ps-4">Fecha y hora</th><th>Tipo</th><th>Modelo</th><th class="num">Cantidad</th>
+          <th>Origen → destino</th><th>Analista</th><th class="pe-4">Canal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for op in pagina.object_list %}
+        <tr>
+          <td class="ps-4 text-nowrap">{{ op.fecha|date:"d/m/Y H:i" }}</td>
+          <td><span class="tt-pill {% if op.tipo == 'movimiento' %}tt-pill-azul{% else %}tt-pill-gris{% endif %}">{{ op.get_tipo_display }}</span></td>
+          <td class="fw-medium">{{ op.modelo.nombre }}</td>
+          <td class="num">{{ op.cantidad }}</td>
+          <td class="text-nowrap">{{ op.origen|default:"—" }}<span class="tt-flecha">→</span>{{ op.destino }}</td>
+          <td class="text-nowrap">{{ op.analista.get_full_name|default:op.analista.username }}</td>
+          <td class="pe-4">{{ op.get_canal_display }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if pagina.has_other_pages %}
+  <nav class="tt-card-cuerpo d-flex justify-content-between align-items-center" aria-label="Páginas del historial">
+    <span class="small text-secondary">Página {{ pagina.number }} de {{ pagina.paginator.num_pages }}</span>
+    <div class="d-flex gap-2">
+      {% if pagina.has_previous %}<a class="btn btn-sm btn-outline-secondary" href="?pagina={{ pagina.previous_page_number }}">Anterior</a>{% endif %}
+      {% if pagina.has_next %}<a class="btn btn-sm btn-outline-secondary" href="?pagina={{ pagina.next_page_number }}">Siguiente</a>{% endif %}
+    </div>
+  </nav>
+  {% endif %}
+  {% else %}
+    <div class="tt-card-cuerpo"><div class="alert alert-info mb-0">Todavía no hay operaciones registradas{% if modelo %} para este modelo{% endif %}.</div></div>
+  {% endif %}
+</div>
+{% endblock %}

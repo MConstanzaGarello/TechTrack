@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block titulo %}Disponibilidad{% endblock %}
+{% block contenido %}
+<div class="tt-encabezado">
+  <div>
+    <h1>Disponibilidad por ubicación</h1>
+    <p>Las cantidades se calculan a partir de las operaciones registradas y no se pueden editar.</p>
+  </div>
+  {% if es_analista %}
+    <a class="btn btn-primary btn-icono" href="{% url 'inventario:nuevo_movimiento' %}">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+      Registrar movimiento
+    </a>
+  {% endif %}
+</div>
+
+<div class="tt-card mb-3">
+  <form method="get" class="tt-card-cuerpo row g-2 align-items-end">
+    <div class="col-md-5">{{ filtro.texto.label_tag }}{{ filtro.texto }}</div>
+    <div class="col-md-4">{{ filtro.ubicacion.label_tag }}{{ filtro.ubicacion }}</div>
+    <div class="col-md-3 d-flex gap-2">
+      <button class="btn btn-primary flex-fill" type="submit">Filtrar</button>
+      <a class="btn btn-outline-secondary flex-fill" href="{% url 'inventario:disponibilidad' %}">Limpiar</a>
+    </div>
+  </form>
+</div>
+
+<div class="tt-card">
+  <div class="tt-card-cab pb-3">
+    <div><h2>{{ filas|length }} modelo{{ filas|length|pluralize }}</h2><p>Agrupado como la planilla Inventario: warehouse, en uso y transferido.</p></div>
+  </div>
+  {% if filas and ubicaciones %}
+  <div class="tt-tabla-scroll">
+    <table class="table tt-tabla">
+      <thead>
+        <tr>
+          <th class="tt-fija" rowspan="2">Modelo</th>
+          {% for g in grupos %}<th class="grupo {{ g.clase }} sep" colspan="{{ g.columnas }}">{{ g.nombre }}</th>{% endfor %}
+          <th class="num sep" rowspan="2">Total</th>
+          <th rowspan="2"></th>
+        </tr>
+        <tr>
+          {% for c in columnas %}<th class="num{% if c.sep %} sep{% endif %}">{{ c.ubicacion.nombre }}</th>{% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for fila in filas %}
+        <tr>
+          <td class="tt-fija">
+            <div class="tt-modelo-nombre">{{ fila.modelo.nombre }}</div>
+            <div class="tt-modelo-tipo">{{ fila.modelo.tipo }}</div>
+          </td>
+          {% for c in fila.celdas %}<td class="num{% if c.sep %} sep{% endif %}{% if not c.valor %} tt-cero{% endif %}">{% if c.valor %}{{ c.valor }}{% else %}–{% endif %}</td>{% endfor %}
+          <td class="num sep tt-total">{{ fila.total }}</td>
+          <td class="pe-3"><a class="small fw-semibold text-nowrap" href="{% url 'inventario:historial_modelo' fila.modelo.pk %}">Historial</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <div class="tt-card-cuerpo pt-0"><div class="alert alert-info mb-0">No hay modelos o ubicaciones que mostrar con este filtro.</div></div>
+  {% endif %}
+</div>
+{% endblock %}

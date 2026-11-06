@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block titulo %}Ingresar{% endblock %}
+{% block publico %}
+<div class="tt-login">
+  <section class="tt-login-lado">
+    <div>
+      <div class="tt-marca-sub mb-4" style="color:#7fb0ff;font-weight:600;letter-spacing:.06em;text-transform:uppercase">Gestión de Recursos IT</div>
+      <h1>TechTrack</h1>
+      <p>Sistema de Gestión y Trazabilidad de Recursos Tecnológicos. Cada recurso, su ubicación y quién lo tiene, en un solo lugar.</p>
+      <ul class="tt-login-lista">
+        <li>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+          Cada movimiento queda registrado con origen, destino, analista, fecha y hora.
+        </li>
+        <li>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+          Las cantidades se calculan a partir de las operaciones: no se editan a mano.
+        </li>
+        <li>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+          Varios analistas pueden trabajar al mismo tiempo, sin archivos bloqueados.
+        </li>
+      </ul>
+    </div>
+    <div class="tt-login-pie">Seminario Integrador · Ingeniería en Sistemas de Información · UTN FRSFCO · 2026</div>
+  </section>
+
+  <section class="tt-login-form">
+    <div class="tt-login-caja">
+      <h2 class="mb-1">Iniciar sesión</h2>
+      <p class="text-secondary mb-4">Ingresá con tu usuario del área de IT.</p>
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger small py-2">Usuario o contraseña incorrectos.</div>
+        {% endif %}
+        <div class="mb-3">
+          <label class="form-label" for="id_username">Usuario</label>
+          <input class="form-control" type="text" name="username" id="id_username" autocomplete="username" required autofocus value="{{ form.username.value|default:'' }}">
+        </div>
+        <div class="mb-4">
+          <label class="form-label" for="id_password">Contraseña</label>
+          <input class="form-control" type="password" name="password" id="id_password" autocomplete="current-password" required>
+        </div>
+        <input type="hidden" name="next" value="{{ next }}">
+        <button class="btn btn-primary w-100" type="submit">Ingresar</button>
+      </form>
+    </div>
+  </section>
+</div>
+{% endblock %}
